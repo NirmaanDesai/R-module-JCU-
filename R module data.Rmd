@@ -1,0 +1,391 @@
+---
+title: "R module techniques 1"
+output: html_document
+date: "2024-05-12"
+---
+
+#Installing packages 
+```{r}
+install.packages("tidyverse")
+library(tidyverse)
+```
+#Installing and removing rlang coz needed update
+```{r}
+remove.packages('rlang')
+install.packages('rlang')
+```
+
+#Loading dataframe
+```{r}
+mpg
+```
+#Loading ggplot
+```{r}
+library(ggplot2)
+```
+
+#Create first ggplot using mgp data 
+```{r}
+ggplot(data = mpg) + 
+  geom_point(mapping = aes(x = displ, y = hwy))
+```
+#The above plot shows a negative relationship between engine size(displ) and fuel effieciency(hwy). Cars with big engines use more fuel. 
+
+#Function geom_point() adds layers of points to your plot creating a scatter plot. Argument is paired with aes() and the x,y arguments of aes(). Additionally, mapped class to colour. Sizes of points reprsent class of car.
+
+```{r}
+ggplot(data = mpg) + 
+  geom_point(mapping = aes(x = displ, y = hwy, colour = class))
+
+```
+#Changing point shape by class:
+
+```{r}
+ggplot(data = mpg) + 
+  geom_point(mapping = aes(x = displ, y = hwy, shape = class))
+```
+
+#Making all my points blue:
+```{r}
+ggplot(data = mpg) + 
+  geom_point(mapping = aes(x = displ, y = hwy), color = "blue")
+```
+
+#Alpha functions
+```{r}
+ggplot(data = mpg) + 
+  geom_point(mapping = aes(x = displ, y = hwy, alpha = class))
+
+```
+
+
+#Question: What if you map an aesthetic to something other than a variable name.
+
+```{r}
+ggplot(data = mpg) + 
+  geom_point(mapping = aes(x = displ, y = hwy), color = displ<5)
+```
+#Troubleshooting: Errors common for instance + can't be on the second layer
+```{r}
+ggplot(data = mpg) 
++ geom_point(mapping = aes(x = displ, y = hwy)) 
+# the + should be on top line
+```
+
+#facets to break complex plots into multiple other plots where ~ dictates which variable you want to subset your data with (ONLY DISCRETE VARIABLES)
+
+```{r}
+ggplot(data = mpg) + 
+  geom_point(mapping = aes(x = displ, y = hwy)) + 
+  facet_wrap(~ class, nrow = 2)
+```
+
+#To do this for more than one variable, use facet_grid()
+
+```{r}
+ggplot(data = mpg) + 
+  geom_point(mapping = aes(x = displ, y = hwy)) + 
+  facet_grid(drv ~ cyl)
+```
+
+#Using a . if you don't want to facet it into rows and columns 
+
+```{r}
+ggplot(data = mpg) + 
+  geom_point(mapping = aes(x = displ, y = hwy)) + 
+  facet_grid(drv ~ cyl)
++ 
+facet_grid(. ~ cyl)
+
+```
+
+#Excersise: What does nrow do? What does ncol do? What other options control the layer of the individual panels?
+
+```{r}
+#nrow and ncol are the number of rows and columns 
+#scales= should they be fixed, free or free in one dimension? (free_x/y)
+#shrinks= shrinking of scales to fit output of statistics, not raw data. If false, will be range of raw data before statistical summary.
+#labeller= function that takes one data frame of labels and returns a list of data frame of character vectors.Each input column correspomds to one factor.
+#as.table()= Facets laid out like a table with highest values at bottom right. If False, facets are laid pout like a plot with the highest value at the top-right
+#switch= x,y or both= Where the labels will be displayed
+#drop- if true all factor levels not used in the data will be dropped.
+#dir-h/v for horizontal or vertical
+#strip.position= (top,bottom,left,right)- where to place labels
+#axes-which axes will be drawn in case of fixed scales- When margins axes will be drawn at exterior margins. all x/y will draw respective axes at the interior panels
+#axis.labels 
+
+```
+
+#Examples: Using labeller function
+```{r}
+ggplot(mpg, aes(displ, hwy)) +
+  geom_point() +
+  facet_wrap(vars(cyl, drv), labeller = "label_both")
+```
+
+#changing the order in which the panels appear 
+```{r}
+mpg$class2 <- reorder(mpg$class, mpg$displ)
+ggplot(mpg, aes(displ, hwy)) +
+  geom_point() +
+  facet_wrap(vars(class2))
+```
+
+
+# scales to vary across the panels with the `scales` argument. Free scales make it easier to see patterns within each panel, but  harder to compare across panels.
+
+```{r}
+ggplot(mpg, aes(displ, hwy)) +
+  geom_point() +
+  facet_wrap(vars(class), scales = "free")
+```
+
+# When scales are constant, duplicated axes can be shown with or without labels
+
+```{r}
+ggplot(mpg, aes(displ, hwy)) +
+  geom_point() +
+  facet_wrap(vars(class), axes = "all", axis.labels = "all_y")
+```
+
+#to display data as points, use geom_point()
+
+```{r}
+ggplot(data = mpg) + 
+  geom_point(mapping = aes(x = displ, y = hwy))
+```
+
+#to display as a smooth line:
+```{r}
+ggplot(data = mpg) + 
+  geom_smooth(mapping = aes(x = displ, y = hwy))
+```
+
+#Changing line type, 
+
+```{r}
+ggplot(data = mpg) + 
+  geom_smooth(mapping = aes(x = displ, y = hwy, linetype = drv))
+```
+
+#adding group aesthetic to show grouped data:
+
+```{r}
+ggplot(data = mpg) +
+  geom_smooth(mapping = aes(x = displ, y = hwy, group = drv))
+
+```
+
+#changing colour of each line on the drv value
+
+```{r}
+ggplot(data = mpg) +
+  geom_smooth(
+    mapping = aes(x = displ, y = hwy, color = drv),
+    show.legend = FALSE,)
+```
+
+#plotting multiple geoms on a single plot
+
+```{r}
+ggplot(data = mpg) + 
+  geom_point(mapping = aes(x = displ, y = hwy)) +
+  geom_smooth(mapping = aes(x = displ, y = hwy))
+```
+
+#This is often exactly what we want to do! However, note how the top and second rows are duplicated, meaning if you wanted to change the x variable in your plot, you’d need to change it in several locations! This is not ideal in a programming sense, and can increase the chance you’ll make an error. Therefore, ggplot allows you to pass these ‘overarching’ mappings to the ggplot() argument, making them global mappings that are applied to every single subsequent geom. Much in the same way that the data argument is also global, it is used every time a geom is called.
+
+#making same plot but more programmaticallt efficient
+```{r}
+ggplot(data = mpg, mapping = aes(x = displ, y = hwy)) + 
+  geom_point() + 
+  geom_smooth()
+```
+
+#Selecting just a subset of data:
+
+```{r}
+ggplot(data = mpg, mapping = aes(x = displ, y = hwy)) + 
+  geom_point(mapping = aes(color = class)) + 
+  geom_smooth(data = filter(mpg, class == "subcompact"), se = FALSE)
+```
+
+#Excerise 2
+#What geom would you use to draw a line chart? A boxplot? A histogram? An area chart?
+#Run this code in your head and predict what the output will look like. Then, run the code in R and check your predictions.
+#Fill these two graphs look different? Why/why not?
+
+
+```{r}
+ggplot(data = mpg, mapping = aes(x = displ, y = hwy)) + 
+  geom_point() + 
+  geom_smooth()
+
+ggplot() + 
+  geom_point(data = mpg, mapping = aes(x = displ, y = hwy)) + 
+  geom_smooth(data = mpg, mapping = aes(x = displ, y = hwy))
+```
+
+
+#2.22. Transformation and stats
+
+#First bar chart shows that more diamonds are available with high quality cuts than low 
+```{r}
+ggplot(data = diamonds) + 
+  geom_bar(mapping = aes(x= cut))
+```
+
+#recreating same bar chart using stat_count
+```{r}
+ggplot(data = diamonds) + 
+  stat_count(mapping = aes(x = cut))
+```
+#The main reason this is so easy is because every geom has a default stat and every stat has a default geom, which means you don’t need to worry about what’s going on. 
+
+##22.2 Overriding defaults:
+
+#hat is the default? How can it change? What’s it doing to my work?
+
+```{r}
+demo <- tribble(
+  ~cut,         ~freq,
+  "Fair",       1610,
+  "Good",       4906,
+  "Very Good",  12082,
+  "Premium",    13791,
+  "Ideal",      21551
+)
+demo
+
+ggplot(data = demo) +
+  geom_bar(mapping = aes(x = cut, y = freq), stat = "identity")
+```
+#Can also override default mapping from transformed variables to aesthetics
+
+```{r}
+ggplot(data = diamonds) + 
+  geom_bar(mapping = aes(x = cut, y = stat(prop), group = 1))
+```
+
+#2.23 Aesthetic adjustments
+
+```{r}
+ggplot(data = diamonds) + 
+  geom_bar(mapping = aes(x = cut, colour = cut))
+ggplot(data = diamonds) + 
+  geom_bar(mapping = aes(x = cut, fill = cut))
+```
+```{r}
+ggplot(data = diamonds) + 
+  geom_bar(mapping = aes(x = cut, fill = clarity))
+```
+#The ability to make position adjustments is vital, it allows you to customise your plots in three ways, identity (raw data), fill (changes heights) and dodge (which forces ggplot2 to not put things on top of each other)
+#f you use position = "identity", you will be able to place each object exactly where it falls in the context of the graph. This is vital for point charts like scatter plots but makes a mess in a bar plot situation by showing too much information (a bar plot generally summarises information). So in this case we will need to alter the bar aesthetic.
+
+```{r}
+#To alter transparency (alpha)
+ggplot(data = diamonds, mapping = aes(x = cut, fill = clarity)) + 
+  geom_bar(alpha = 1/5, position = "identity")
+
+#To color the bar outlines with no fill color
+ggplot(data = diamonds, mapping = aes(x = cut, colour = clarity)) + 
+  geom_bar(fill = NA, position = "identity")
+```
+
+#Position=fill works like stacking, making each set of stacked bars the same height
+
+```{r}
+ggplot(diamonds) + 
+  geom_bar(mapping = aes(x = cut, fill = clarity), position = "fill")
+
+```
+#osition = "dodge" places overlapping objects directly beside one another.
+
+```{r}
+ggplot(data = diamonds) + 
+  geom_bar(mapping = aes(x = cut, fill = clarity), position = "dodge")
+```
+#One bonus position adjustment is jitter, which slightly moves points so you can see them all (especially when they overlap). I’m sure you’ve seen really nice box plots with jittered points all over them, which you handle with this function. osition = "jitter" adds a small amount of random noise to each point to avoid overplotting when points overlap. This is useful for scatterplots but not barplots.
+
+```{r}
+ggplot(data = mpg) + 
+  geom_point(mapping = aes(x = displ, y = hwy), position = "jitter")
+```
+
+#2.24 Layered grammar of graphics
+```{r}
+ggplot(data = <DATA>) + 
+  <GEOM_FUNCTION>(
+     mapping = aes(<MAPPINGS>),
+     stat = <STAT>, 
+     position = <POSITION>
+  ) +
+  <FACET_FUNCTION>
+```
+
+
+#Homework:Plot deconstruction
+
+#Workshop 2: Labels 
+
+#3.1: Labels, Good labels can help communocate findings clearly
+```{r}
+ggplot(mpg, aes(displ, hwy)) +
+  geom_point(aes(color = class)) +
+  geom_smooth(se.e = FALSE) +
+  labs(title = "Fuel efficiency generally decreases with engine size")
+
+```
+
+
+#If you need to add more text, you can use a couple of other functions: SUBTITLE adds additional detail in a smaller font beneath the title and caption adds text at the bottom right of the plot CAPTION adds text at the bottom right of the plot, often used to describe the source of the data.
+```{r}
+
+ggplot(mpg, aes(displ, hwy)) +
+  geom_point(aes(color = class)) +
+  geom_smooth(se = FALSE) +
+  labs(
+    title = "Fuel efficiency generally decreases with engine size",
+    subtitle = "Two seaters (sports cars) are an exception because of their light weight",
+    caption = "Data from fueleconomy.gov"
+  )
+```
+
+#Using labs() to replace axis labels and legend titles
+
+```{r}
+ggplot(mpg, aes(displ, hwy)) +
+  geom_point(aes(colour = class)) +
+  geom_smooth(se = FALSE) +
+  labs(
+    x = "Engine displacement (L)",
+    y = "Highway fuel economy (mpg)",
+    colour = "Car type"
+  )
+```
+
+
+#3.2: Using annotations 
+#Adding text to plot directly (If labels overlap ypu can use the Nudge function to seperate them)
+```{r}
+best_in_class <- mpg %>%
+  group_by(class) %>%
+  filter(row_number(desc(hwy)) == 1)
+
+ggplot(mpg, aes(displ, hwy)) +
+  geom_point(aes(colour = class)) +
+  geom_text(aes(label = model), data = best_in_class)
+```
+
+#3.3. Scales:
+
+#Normally, ggplot adds scales directly to the plot like this:
+```{r}
+ggplot(mpg, aes(displ, hwy)) +
+  geom_point(aes(colour = class))
+
+```
+
+#However you can tweak them:
+
+
