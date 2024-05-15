@@ -3,7 +3,6 @@ title: "R module techniques 1"
 output: html_document
 date: "2024-05-12"
 ---
-
 #Installing packages 
 ```{r}
 install.packages("tidyverse")
@@ -387,5 +386,211 @@ ggplot(mpg, aes(displ, hwy)) +
 ```
 
 #However you can tweak them:
+```{r}
+ggplot(mpg, aes(displ, hwy)) +
+  geom_point(aes(colour = class)) +
+  scale_x_continuous() +
+    scale_y_continuous() +
+  scale_colour_discrete()
+
+```
+#3.4 Axis tricks:
+#Breaks controls the position of the ticks and you can use labels as an argument to change the text label associated with ticks. 
+```{r}
+ggplot(mpg, aes(displ, hwy)) +
+  geom_point() +
+  scale_y_continuous(breaks = seq(15, 40, by = 5))
+```
+
+#Similarly, you can use labels set to NULL to suppress the labels altogether. This is sometimes an option if you’re trying to format your plots in a particular way. 
+
+```{r}
+ggplot(mpg, aes(displ, hwy)) +
+  geom_point() +
+  scale_x_continuous(labels = NULL) +
+  scale_y_continuous(labels = NULL)
+```
+##3.5:Legends and colour schemes
+
+```{r}
+base <- ggplot(mpg, aes(displ, hwy)) +
+  geom_point(aes(colour = class))
+
+base + theme(legend.position = "left")
+base + theme(legend.position = "top")
+base + theme(legend.position = "bottom")
+base + theme(legend.position = "right") # the default
+
+```
+
+##3.6.Replacing scale 
+
+#There are two types of scales you’re mostly likely to want to switch out: continuous position scales and colour scales. It’s very useful to plot transformations of your variables. For example, as we’ve seen in diamond prices it’s easier to see the precise relationship between carat and price if we log transform them using a ggplot2 function for scale precisely for this purpose.
+
+```{r}
+ggplot(diamonds, aes(carat, price)) +
+  geom_bin2d() + 
+  scale_x_log10() + 
+  scale_y_log10()
+```
+#Another scale that is frequently customised is the colour scale. In fact, from a data visualisation point of view, this is among the most important changes you can make to a base ggplot.
+
+```{r}
+ggplot(mpg, aes(displ, hwy)) +
+  geom_point(aes(color = drv))
+
+ggplot(mpg, aes(displ, hwy)) +
+  geom_point(aes(color = drv)) +
+  scale_colour_brewer(palette = "Set1")
+```
+#Adding redundant shape palette
+```{r}
+ggplot(mpg, aes(displ, hwy)) +
+  geom_point(aes(color = drv, shape = drv)) +
+  scale_colour_brewer(palette = "Set1")
+
+
+```
+
+#When you have predefined colours you want to use you can set them yourself, using scale_colour_manual()
+
+```{r}
+presidential %>%
+  mutate(id = 33 + row_number()) %>%
+  ggplot(aes(start, id, colour = party)) +
+    geom_point() +
+    geom_segment(aes(xend = end, yend = id)) +
+    scale_colour_manual(values = c(Republican = "red", Democratic = "blue"))
+
+
+```
+
+#Or one of the hottest colour packages out there now, even used in my own published work, the viridis colour scheme. Once you’ve tried this one you’ll start to see it everywhere! To use it, simply use scale_colour_viridis() provided by the viridis package
+
+```{r}
+install.packages('viridis')
+install.packages('hexbin')
+library(viridis)
+library(hexbin)
+
+df <- tibble( # note we're just making a fake dataset so we can plot it
+  x = rnorm(10000),
+  y = rnorm(10000)
+)
+ggplot(df, aes(x, y)) +
+  geom_hex() + # a new geom!
+  coord_fixed()
+
+ggplot(df, aes(x, y)) +
+  geom_hex() +
+  viridis::scale_fill_viridis() +
+  coord_fixed()
+```
+##3.7:Themes
+
+```{r}
+
+ggplot(mpg, aes(displ, hwy)) +
+  geom_point(aes(color = class)) +
+  geom_smooth(se = FALSE) +
+  theme_bw()
+
+
+ggplot(mpg, aes(displ, hwy)) +
+  geom_point(aes(color = class)) +
+  geom_smooth(se = FALSE) +
+  theme_light()
+
+
+ggplot(mpg, aes(displ, hwy)) +
+  geom_point(aes(color = class)) +
+  geom_smooth(se = FALSE) +
+  theme_classic()
+
+
+ggplot(mpg, aes(displ, hwy)) +
+  geom_point(aes(color = class)) +
+  geom_smooth(se = FALSE) +
+  theme_dark()
+
+
+```
+
+#One particularly nice thing you can do is to develop your own themes simply by setting some or all of the arguments to theme() yourself. Here’s one I wrote so that my plots are always the same style:
+
+```{r}
+theme (panel.border = element_blank(),
+        panel.grid.minor.x = element_blank(),
+        panel.grid.minor.y = element_blank(),
+        legend.position="bottom",
+        legend.title=element_blank(),
+        legend.text=element_text(size=8),
+        panel.grid.major = element_blank(),
+        legend.key = element_blank(),
+        legend.background = element_blank(),
+        axis.text.y=element_text(colour="black"),
+        axis.text.x=element_text(colour="black"),
+        text=element_text(family="Arial"))
+```
+##3.8:Saving and exporting plots:
+
+#In general, the best way to make a single file will be to export it using the ggsave() function. There are two main ways to get your plots out of R using ggplot2. ggsave() will save the most recent plot to your working directory.
+
+```{r}
+ggplot(mpg, aes(displ, hwy)) + geom_point()
+
+ggsave("my-plot.pdf")
+#> Saving 7 x 4.32 in image
+
+```
+##Workshop 3:
+
+#installing packages: tidyverse
+```{r}
+install.packages("rlang")
+library(rlang)
+library(tidyverse)
+```
+
+
+#Example below:
+
+```{r}
+table1
+#> # A tibble: 6 × 4
+#>   country      year  cases population
+#>   <chr>       <int>  <int>      <int>
+#> 1 Afghanistan  1999    745   19987071
+#> 2 Afghanistan  2000   2666   20595360
+#> 3 Brazil       1999  37737  172006362
+#> 4 Brazil       2000  80488  174504898
+#> 5 China        1999 212258 1272915272
+#> 6 China        2000 213766 1280428583
+table2
+#> # A tibble: 12 × 4
+#>   country      year type           count
+#>   <chr>       <int> <chr>          <int>
+#> 1 Afghanistan  1999 cases            745
+#> 2 Afghanistan  1999 population  19987071
+#> 3 Afghanistan  2000 cases           2666
+#> 4 Afghanistan  2000 population  20595360
+#> 5 Brazil       1999 cases          37737
+#> 6 Brazil       1999 population 172006362
+#> # ... with 6 more rows
+table3
+#> # A tibble: 6 × 3
+#>   country      year rate             
+#> * <chr>       <int> <chr>            
+#> 1 Afghanistan  1999 745/19987071     
+#> 2 Afghanistan  2000 2666/20595360    
+#> 3 Brazil       1999 37737/172006362  
+#> 4 Brazil       2000 80488/174504898  
+#> 5 China        1999 212258/1272915272
+#> 6 China        2000 213766/1280428583
+
+
+```
+
+#How we make our dataset tidy is by following three interrelated rules. Each variable must have its own column.Each observation must have its own row.Each value must have its own cell.
 
 
