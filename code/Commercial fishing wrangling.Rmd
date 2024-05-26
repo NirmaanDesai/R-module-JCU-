@@ -1,0 +1,59 @@
+---
+title: "Commercial fishing wrangling"
+output: html_document
+date: "2024-05-20"
+---
+
+###Reading csv file into R
+```{r}
+library(readr)
+CF <- read_csv("~/Data analysis JCU/R-module-JCU-/commercial.csv")
+View(CF)
+```
+
+###Plotting time series plot
+```{r}
+# Load necessary libraries
+library(tidyverse)
+library(readr)
+
+# Load your data
+data <- read_csv("~/Data analysis JCU/R-module-JCU-/commercial.csv")
+
+# View the first few rows of the dataset
+head(data)
+
+# Remove commas from the "Tonnes" column and convert to numeric
+data$Tonnes <- as.numeric(gsub(",", "", data$Tonnes))
+
+# Convert "CalendarYear" to numeric
+data$CalendarYear <- as.numeric(data$CalendarYear)
+
+# Remove rows with N/A or missing values in "CalendarYear" and "Tonnes"
+data <- data %>% drop_na(CalendarYear, Tonnes)
+
+# Verify the data after cleaning
+head(data)
+
+# Plot the data
+ggplot(data, aes(x = CalendarYear, y = Tonnes, color = FishingMethod)) +
+  geom_point() +
+  geom_line() +
+  labs(
+       x = "Calendar Year",
+       y = "Tonnes",
+       color = "Fishing Method") +
+  theme_minimal()
+
+# Alternatively, if you want to facet the plot by FishingMethod
+ggplot(data, aes(x = CalendarYear, y = Tonnes, color = FishingMethod)) +
+  geom_point() +
+  geom_line() +
+  labs(
+       x = "Calendar Year",
+       y = "Tonnes") +
+  theme_minimal() +
+  facet_wrap(~FishingMethod)
+
+```
+fdjn

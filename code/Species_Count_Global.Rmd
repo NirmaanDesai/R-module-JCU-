@@ -14,7 +14,7 @@ library(tidyverse)
 ##Reading table from excel
 ```{r}
 library(readr)
-DataPlot <- read_csv("DataPlot.csv")
+DataPlot <- read_csv("~/Data analysis JCU/R-module-JCU-/data/DataPlot.csv")
 View(DataPlot)
 ```
 
@@ -41,7 +41,7 @@ ggplot(DataPlot, aes(x = count, y = main, fill = group)) +
 
 ##Code for overall count of groups of animals globally 
 ```{r}
-ggplot(species, aes(x = count, y = reorder(main, count))) +
+ggplot(DataPlot, aes(x = count, y = reorder(main, count))) +
   geom_bar(stat = "identity", show.legend = FALSE, fill = "royalblue4") +
   geom_text(aes(label = count), hjust = 1.1, color = "white") + # Adjust text position
   scale_x_continuous(trans = "log10", breaks = c(1, 10, 100, 1000, 10000, 100000, 1000000)) + # Log scale
