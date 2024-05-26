@@ -5,6 +5,7 @@ date: "2024-05-20"
 ---
 
 ###Reading csv file into R
+###Obtained data from Qfish.Used the commercial fish line data to create a time series plot explaining the amount of fish caught using different methods of fishing from years 1990 to 2020.
 ```{r}
 library(readr)
 CF <- read_csv("~/Data analysis JCU/R-module-JCU-/commercial.csv")
@@ -56,4 +57,5 @@ ggplot(data, aes(x = CalendarYear, y = Tonnes, color = FishingMethod)) +
   facet_wrap(~FishingMethod)
 
 ```
-fdjn
+
+
