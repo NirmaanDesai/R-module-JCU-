@@ -1,6 +1,8 @@
 ---
 title: "Data plot deconstruction"
-output: html_document
+output:
+  pdf_document: default
+  html_document: default
 date: "2024-05-15"
 ---
 
@@ -14,7 +16,7 @@ library(tidyverse)
 ##Reading table from excel
 ```{r}
 library(readr)
-DataPlot <- read_csv("~/Data analysis JCU/R-module-JCU-/data/DataPlot.csv")
+DataPlot <- DataPlot <- read_csv("~/Data analysis JCU/R-module-JCU-/data/DataPlot.csv")
 View(DataPlot)
 ```
 
